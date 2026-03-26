@@ -1,0 +1,23 @@
+# Этап 1: Сборка
+FROM ubuntu:24.04 AS builder
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y \
+    build-essential cmake pkg-config libpq-dev libhiredis-dev
+
+WORKDIR /build
+COPY . .
+RUN cmake -DCMAKE_BUILD_TYPE=Release . && make -j$(nproc)
+
+# Этап 2: Финальный образ
+FROM ubuntu:24.04
+RUN apt-get update && apt-get install -y \
+    libpq5 libhiredis1.1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+# Копируем только скомпилированный файл
+COPY --from=builder /build/jerboa_pure /app/jerboa_pure
+
+# Запуск
+EXPOSE 8000
+CMD ["./jerboa_pure"]

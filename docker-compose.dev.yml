@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:18-alpine
+    env_file: .env
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  # Контейнер для разработки (используется CLion)
+  dev_env:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/src
+    environment:
+      - DB_URL=host=db dbname=${POSTGRES_DB} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD}
+    depends_on:
+      - db
+      - redis
