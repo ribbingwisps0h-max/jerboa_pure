@@ -1,4 +1,4 @@
 /.env
 /cmake-build-debug
-mongoose.h
-mongoose.c
+/mongoose.h
+/mongoose.c
